@@ -17,11 +17,13 @@ options = {'N_VDW_LAYERS'       : 4,
            'VDW_SCALE_FACTOR'   : 1.4,
            'VDW_INCREMENT'      : 0.2,
            'VDW_POINT_DENSITY'  : 1.0,
-           'RESP_A'             : 0.0005,
+           'resp_a'             : 0.0005,
            'RESP_B'             : 0.1,
+           'CHARGE_GROUPS'      : [0, 1, 2, 3, 4, 5],
            'TWO_STAGE_FIT'      : True,
+           'RESP_A2'            : 0.001,
            'FIT2'               : [0, 2, 3, 4],
-           'CHARGE_GROUPS'      : [0, 1, 1, 1],
+           'CHARGE_GROUPS2'     : [0, 1, 1, 1],
            'METHOD'             : 'scf'
            }
 
