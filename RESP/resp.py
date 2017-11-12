@@ -13,8 +13,10 @@ def resp(wfn, options={}):
     mol = wfn.molecule()
     n_atoms = mol.natom()
     # Check options
+    check_options = {}
     for i in options.keys():
-        options[i.upper()] = options.pop(i)
+        check_options[i.upper()] = options[i]
+    options = check_options
     if not ('N_VDW_LAYERS' in options.keys()):
         options['N_VDW_LAYERS'] = 4
     if not ('VDW_SCALE_FACTOR' in options.keys()):
