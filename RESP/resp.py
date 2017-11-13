@@ -47,10 +47,10 @@ def resp(wfn, options={}):
     # Get the coordinates of the nuclei in Angstroms
     symbols = []
     coordinates = np.asarray(mol.geometry())
-    for i in range(n_atoms):
-        symbols.append(mol.symbol(i))
     # the vdwsurface code expects coordinates in angstroms
     coordinates *= bohr_to_angstrom
+    for i in range(n_atoms):
+        symbols.append(mol.symbol(i))
     # Get the points at which we're going to calculate the ESP surface
     points = []
     for i in range(options['N_VDW_LAYERS']):
@@ -58,13 +58,19 @@ def resp(wfn, options={}):
         this_shell = vdw_surface(coordinates, symbols, scale_factor, options['VDW_POINT_DENSITY'])
         points.append(this_shell)
     points = np.concatenate(points)
+    if 'Bohr' in str(mol.units):
+        points /= bohr_to_angstrom
+        np.savetxt('grid.dat', points, fmt='%.9f', delimiter='\t')
+        points *= bohr_to_angstrom
+    else:
+        np.savetxt('grid.dat', points, fmt='%.9f', delimiter='\t')
     # Calculate ESP values at the grid
-    np.savetxt('grid.dat', points, fmt='%.9f', delimiter='\t')
     e, wfn = psi4.prop(options['METHOD'], properties=['GRID_ESP', 'MULLIKEN_CHARGES'], molecule=wfn.molecule(), return_wfn=True)
     options['esp_values'] = wfn.oeprop.Vvals()
     options['charges'] = np.asarray(wfn.atomic_point_charges()) 
     # Build a matrix of the inverse distance from each ESP point to each nucleus
-    options['invr'] = 1.0/scipy.spatial.distance_matrix(points, coordinates)*bohr_to_angstrom
+    options['invr'] = 1.0/scipy.spatial.distance_matrix(points, coordinates)
+    options['invr'] *= bohr_to_angstrom
     # Run the optimization using SciPy
     charges = scipy.optimize.minimize(resp_objective, options['charges'], args=(options), method='SLSQP', tol=1e-8, options={'ftol':1e-8},
               constraints={'type': 'eq', 'fun':resp_constraint, 'args':[options['mol_charge'], options['CHARGE_GROUPS'], False]})
