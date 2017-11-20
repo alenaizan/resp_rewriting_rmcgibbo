@@ -316,5 +316,11 @@ def dotsphere(density):
         vertices = dotsphere1(density)
     else:
         vertices = dotsphere2(density)
-    vertices = refine_dotsphere(vertices)
+    keep = np.zeros(density, dtype=int)
+    if density < len(vertices):
+        import random
+        random.seed(0)
+        for i in range(len(keep)):
+            keep[i] = random.randint(0, len(vertices)-1)
+    vertices = refine_dotsphere(vertices[keep])
     return vertices

@@ -72,14 +72,14 @@ def resp(wfn, options={}):
     options['invr'] = 1.0/scipy.spatial.distance_matrix(points, coordinates)
     options['invr'] *= bohr_to_angstrom
     # Run the optimization using SciPy
-    charges = scipy.optimize.minimize(resp_objective, options['charges'], args=(options), method='SLSQP', tol=1e-8, options={'ftol':1e-8},
+    charges = scipy.optimize.minimize(resp_objective, options['charges'], args=(options), jac=True, method='SLSQP', tol=1e-8, options={'ftol':1e-8},
               constraints={'type': 'eq', 'fun':resp_constraint, 'args':[options['mol_charge'], options['CHARGE_GROUPS'], False]})
     charges = charges.x
     if options['TWO_STAGE_FIT']:
         a = options['RESP_A']
         options['RESP_A'] = options['RESP_A2']
         options['charges'] = charges
-        charges2 = scipy.optimize.minimize(resp_objective, charges[options['FIT2']], args=(options, True), method='SLSQP', tol=1e-8, options={'ftol':1e-8},
+        charges2 = scipy.optimize.minimize(resp_objective, charges[options['FIT2']], args=(options, True), jac=True, method='SLSQP', tol=1e-8, options={'ftol':1e-8},
                    constraints={'type': 'eq', 'fun':resp_constraint, 'args':[options['mol_charge'], options['CHARGE_GROUPS2'], True, options['charges'], options['FIT2']]})
         charges[options['FIT2']] = charges2.x
         options['RESP_A'] = a

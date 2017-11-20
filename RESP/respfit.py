@@ -22,7 +22,19 @@ def resp_objective(charges, options, two_stage=False):
     for charge in charges:
         chi2_rstr += np.sqrt(charge**2  + options['RESP_B']**2) - options['RESP_B']
     chi2_rstr *= options['RESP_A']
-    return chi2_esp + chi2_rstr
+    chi2_d_esp = []
+    for i in range(len(charges)):
+        grad = 0
+        for j in range(len(options['esp_values'])):
+            grad += (options['esp_values'] - expected_esp)[j]*options['invr'][j][i]
+        grad *= -2
+        chi2_d_esp.append(grad)
+    chi2_d_rstr = []
+    for i in range(len(charges)):
+        chi2_d_rstr.append(options['RESP_A']*charges[i]/np.sqrt(charges[i]**2+options['RESP_B']**2))
+    chi2_d_esp = np.array(chi2_d_esp)
+    chi2_d_rstr = np.array(chi2_d_rstr)
+    return (chi2_esp + chi2_rstr, chi2_d_esp + chi2_d_rstr)
 
 def resp_constraint(charges, mol_charge, charge_groups=None, two_stage=False, all_charges=None, fit2=None):
     total_charge = 0
